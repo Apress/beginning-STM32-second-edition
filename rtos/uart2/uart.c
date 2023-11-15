@@ -99,7 +99,7 @@ demo_task(void *args __attribute__((unused))) {
 int
 main(void) {
 
-	rcc_clock_setup_in_hse_8mhz_out_72mhz();	// CPU clock is 72 MHz
+	rcc_clock_setup_pll(&rcc_hse_configs[RCC_CLOCK_HSE8_72MHZ]);
 
 	// GPIO PC13:
 	rcc_periph_clock_enable(RCC_GPIOC);
