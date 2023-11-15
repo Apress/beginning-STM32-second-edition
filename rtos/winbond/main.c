@@ -678,7 +678,7 @@ spi_setup(void) {
 		GPIO_CNF_INPUT_FLOAT,
 		GPIO6				// MISO=PA6
 	);
-	spi_reset(SPI1); 
+
 	spi_init_master(
 		SPI1,
                 SPI_CR1_BAUDRATE_FPCLK_DIV_256,
@@ -694,7 +694,7 @@ spi_setup(void) {
 int
 main(void) {
 
-	rcc_clock_setup_in_hse_8mhz_out_72mhz();	// Blue pill
+	rcc_clock_setup_pll(&rcc_hse_configs[RCC_CLOCK_HSE8_72MHZ]);
 
 	rcc_periph_clock_enable(RCC_GPIOA);
 	rcc_periph_clock_enable(RCC_GPIOC);
