@@ -197,7 +197,7 @@ task1(void *args __attribute__((unused))) {
 int
 main(void) {
 
-	rcc_clock_setup_in_hse_8mhz_out_72mhz();// For "blue pill"
+	rcc_clock_setup_pll(&rcc_hse_configs[RCC_CLOCK_HSE8_72MHZ]);
 	rcc_periph_clock_enable(RCC_GPIOB);	// I2C
 	rcc_periph_clock_enable(RCC_GPIOC);	// LED
 	rcc_periph_clock_enable(RCC_AFIO);	// EXTI

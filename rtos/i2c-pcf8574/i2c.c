@@ -16,6 +16,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "i2c.h"
+#include <libopencm3/stm32/rcc.h>
 
 #define systicks	xTaskGetTickCount
 
@@ -55,6 +56,32 @@ i2c_error(I2C_Fails fcode) {
 }
 
 /*********************************************************************
+ * Reset the I2C Peripheral
+ *********************************************************************/
+
+static void
+i2c_reset(uint32_t i2c) {
+
+	switch (i2c) {
+	case I2C1:
+		rcc_periph_reset_pulse(RST_I2C1);
+		break;
+#if defined(I2C2_BASE)
+	case I2C2:
+		rcc_periph_reset_pulse(RST_I2C2);
+		break;
+#endif
+#if defined(I2C3_BASE)
+	case I2C3:
+		rcc_periph_reset_pulse(RST_I2C3);
+		break;
+#endif
+	default:
+		break;
+	}
+}
+
+/*********************************************************************
  * Configure I2C device for 100 kHz, 7-bit addresses
  *********************************************************************/
 
@@ -68,7 +95,7 @@ i2c_configure(I2C_Control *dev,uint32_t i2c,uint32_t ticks) {
 	i2c_reset(dev->device);
 	I2C_CR1(dev->device) &= ~I2C_CR1_STOP;	// Clear stop
 	i2c_set_standard_mode(dev->device);	// 100 kHz mode
-	i2c_set_clock_frequency(dev->device,I2C_CR2_FREQ_36MHZ); // APB Freq
+	i2c_set_clock_frequency(dev->device,36); // APB Freq
 	i2c_set_trise(dev->device,36);		// 1000 ns
 	i2c_set_dutycycle(dev->device,I2C_CCR_DUTY_DIV2);
 	i2c_set_ccr(dev->device,180);		// 100 kHz <= 180 * 1 /36M
