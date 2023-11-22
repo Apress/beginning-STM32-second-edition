@@ -82,7 +82,7 @@ demo_task(void *arg __attribute((unused))) {
 int
 main(void) {
 
-        rcc_clock_setup_in_hse_8mhz_out_72mhz();        // Use this for "blue pill"
+	rcc_clock_setup_pll(&rcc_hse_configs[RCC_CLOCK_HSE8_72MHZ]);
 
         rcc_periph_clock_enable(RCC_GPIOA);		// Enable GPIOA for ADC
 	gpio_set_mode(GPIOA,
