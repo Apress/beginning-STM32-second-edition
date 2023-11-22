@@ -353,7 +353,7 @@ monitor_task(void *arg __attribute((unused))) {
 int
 main(void) {
 
-	rcc_clock_setup_in_hse_8mhz_out_72mhz();	// Blue pill
+	rcc_clock_setup_pll(&rcc_hse_configs[RCC_CLOCK_HSE8_72MHZ]);
 
 	rcc_periph_clock_enable(RCC_GPIOA);
 	rcc_periph_clock_enable(RCC_GPIOB);
@@ -396,7 +396,7 @@ main(void) {
                 GPIO15
 	);
 
-	spi_reset(SPI1); 
+	rcc_clock_setup_pll(&rcc_hse_configs[RCC_CLOCK_HSE8_72MHZ]);
 	spi_init_master(
 		SPI1,
                 SPI_CR1_BAUDRATE_FPCLK_DIV_64, // 1.125 MHz
