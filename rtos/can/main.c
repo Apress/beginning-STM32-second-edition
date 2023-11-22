@@ -224,7 +224,7 @@ console_task(void *arg __attribute__((unused))) {
 int
 main(void) {
 
-        rcc_clock_setup_in_hse_8mhz_out_72mhz();        // Use this for "blue pill"
+	rcc_clock_setup_pll(&rcc_hse_configs[RCC_CLOCK_HSE8_72MHZ]);
 
         rcc_periph_clock_enable(RCC_GPIOC);
         gpio_set_mode(GPIO_PORT_LED,GPIO_MODE_OUTPUT_50_MHZ,GPIO_CNF_OUTPUT_PUSHPULL,GPIO_LED);
