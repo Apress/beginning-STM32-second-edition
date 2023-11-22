@@ -12,7 +12,7 @@ static int uart_printf(const char *format,...) __attribute((format(printf,1,2)))
 static void
 init_clock(void) {
 
-	rcc_clock_setup_in_hse_8mhz_out_24mhz();
+	rcc_clock_setup_pll(&rcc_hse_configs[RCC_CLOCK_HSE8_24MHZ]);
 	rcc_periph_clock_enable(RCC_GPIOC);
 
 	// Clock for GPIO port A: GPIO_USART1_TX, USART1
