@@ -2,7 +2,7 @@
 #  Top Level: STM32F103C8T6 Projects
 ######################################################################
 
-PROJECTS = miniblink uart uarthwfc
+PROJECTS = miniblink uart
 
 .PHONY = libopencm3 clobber_libopencm3 clean_libopencm3 libwwg
 
