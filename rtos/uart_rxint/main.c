@@ -4,11 +4,9 @@
  *   Second Edition
  *   Warren Gay
  *
- *              STM32   RS232
- *	TX:	A9      RX
- *	RX:	A10     TX
- *	CTS:	A11     RTS
- *	RTS:	A12     CTS
+ *      ____STM32____   _RS232_
+ *	TX:	A9        RX
+ *	RX:	A10       TX
  *	Baud:	115200
  *      Mode:	8N1
  */
@@ -28,7 +26,6 @@
 static QueueHandle_t uart_txq,	// TX queue
 		     uart_rxq;	// RX queue
 
-#define USE_HW_FC	1
 #define INVERT_CASE	0
 
 // Required extern prototype
@@ -104,30 +101,19 @@ init_usart(void) {
 		GPIO_MODE_INPUT,
 		GPIO_CNF_INPUT_FLOAT,
 		GPIO_USART1_RX);
-#if USE_HW_FC
-	gpio_set_mode(GPIOA,
-		GPIO_MODE_OUTPUT_50_MHZ,
-		GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,
-		GPIO_USART1_RTS);
-	gpio_set_mode(GPIOA,
-		GPIO_MODE_INPUT,
-		GPIO_CNF_INPUT_FLOAT,
-		GPIO_USART1_CTS);
-#endif
+
 	usart_set_baudrate(USART1,115200);
 	usart_set_databits(USART1,8);
 	usart_set_stopbits(USART1,USART_STOPBITS_1);
 	usart_set_mode(USART1,USART_MODE_TX_RX);
 	usart_set_parity(USART1,USART_PARITY_NONE);
-#if USE_HW_FC
-	usart_set_flow_control(USART1,USART_FLOWCONTROL_RTS_CTS);
-#endif
+
 	usart_enable_rx_interrupt(USART1);
 	usart_enable(USART1);
 }
 
 /***************************************
- * Enable GPIO
+ * Enable GPIO for LED
  ***************************************/
 
 static void
@@ -150,6 +136,7 @@ init_gpio(void) {
 static inline void
 uart_putc(char ch) {
 
+	// Queue the byte to send
 	while ( xQueueSend(uart_txq,&ch,0) != pdPASS )
 		taskYIELD();
 	if ( ch == '\n' ) {
@@ -183,19 +170,13 @@ tx_task(void *args __attribute((unused))) {
 	char ch;
 
 	for (;;) {
-		// Unqueue a character to be sent
-		if ( xQueueReceive(uart_txq,&ch,0) != pdPASS ) {
+		while ( xQueueReceive(uart_txq,&ch,0) != pdPASS )
 			taskYIELD();
-		} else	{
-			// Received a char to transmit:
-			while ( !usart_get_flag(USART1,USART_SR_TXE)
-#if USE_HW_FC
-			  || usart_get_flag(USART1,USART_SR_CTS) != 0
-#endif
-			)
-				taskYIELD(); // Not ready
-			usart_send(USART1,ch);
-		}
+
+		// Received a char to transmit:
+		while ( !usart_get_flag(USART1,USART_SR_TXE) )
+			taskYIELD(); // Not ready to send
+		usart_send(USART1,ch);
 	}
 }
 
