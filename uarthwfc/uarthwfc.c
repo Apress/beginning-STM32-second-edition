@@ -6,6 +6,9 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/usart.h>
+#include <libopencm3/cm3/nvic.h>
+
+static QueueHandle_t uart_txq;				// TX queue for UART
 
 static void
 init_clock(void) {
@@ -16,6 +19,17 @@ init_clock(void) {
 	// Clock for GPIO port A: GPIO_USART1_TX, USART1
 	rcc_periph_clock_enable(RCC_GPIOA);
 	rcc_periph_clock_enable(RCC_USART1);
+}
+
+void
+usart1_isr(void) {
+	static uint8_t byte;
+
+	// Check if RXNE.
+	if ( ((USART_CR1(USART1) & USART_CR1_RXNEIE) != 0)
+	  && ((USART_SR(USART1) & USART_SR_RXNE) != 0) ) {
+		byte = usart_recv(USART1);
+	}
 }
 
 static void
@@ -30,6 +44,8 @@ init_usart(void) {
 	//	Baud:	115200
 	//////////////////////////////////////////////////////////////
 
+	nvic_enable_irq(NVIC_USART1_IRQ);
+
 	// GPIO_USART1_TX/GPIO13 on GPIO port A for tx
 	gpio_set_mode(GPIOA,GPIO_MODE_OUTPUT_50_MHZ,GPIO_CNF_OUTPUT_ALTFN_PUSHPULL,GPIO_USART1_TX);
 
@@ -39,6 +55,7 @@ init_usart(void) {
 	usart_set_mode(USART1,USART_MODE_TX);
 	usart_set_parity(USART1,USART_PARITY_NONE);
 	usart_set_flow_control(USART1,USART_FLOWCONTROL_RTS_CTS);
+	usart_enable_rx_interrupt(USART1);
 	usart_enable(USART1);
 }
 
@@ -64,18 +81,8 @@ uart_printf(const char *format,...) {
 	return rc;
 }
 
-static void
-pause(void) {
-	int x;
-
-	for ( x = 0; x < 800000; x++ )	// Wait
-		__asm__("NOP");
-}
-
 int
 main(void) {
-	int y = 0, x = 0;
-	int count = -5;
 
 	init_clock();
 	init_gpio();
@@ -83,16 +90,6 @@ main(void) {
 
 	int c = uart_printf("\nuart.c demo using mini_printf():\n");
 	uart_printf("Count = %d\n",c);
-
-#if 0
-	{
-		char temp[256];
-		int c2;
-
-		c2 = mini_snprintf(temp,sizeof temp,"[c = %d]",c);
-		uart_printf("Formatted '%s', with c2=%d;\n",temp,c2);
-	}
-#endif
 
 	for (;;) {
 		gpio_toggle(GPIOC,GPIO13);	// Toggle LED
