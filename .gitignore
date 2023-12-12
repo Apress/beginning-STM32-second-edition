@@ -4,3 +4,5 @@
 *.elf
 *.map
 *.a
+*.hex
+*.ov
