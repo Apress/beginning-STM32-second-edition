@@ -1,4 +1,4 @@
-/* Interrupt driven UART Receive Demo
+/* Interrupt driven UART Receiver Demo
  * For the Apress book:
  *   Beginning STM32: Developing with FreeRTOS, libopencm3 and GGC
  *   Second Edition
@@ -28,7 +28,6 @@ static QueueHandle_t uart_txq,	// TX queue
 
 #define INVERT_CASE	0
 
-// Required extern prototype
 extern void
 vApplicationStackOverflowHook(
   xTaskHandle *pxTask,
@@ -120,7 +119,6 @@ static void
 init_gpio(void) {
 
 	// gpio for LED
-	rcc_periph_clock_enable(RCC_GPIOC);
 	gpio_set_mode(
 		GPIOC,
 		GPIO_MODE_OUTPUT_2_MHZ,
