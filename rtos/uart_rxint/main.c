@@ -168,7 +168,7 @@ tx_task(void *args __attribute((unused))) {
 	char ch;
 
 	for (;;) {
-		while ( xQueueReceive(uart_txq,&ch,0) != pdPASS )
+		while ( xQueueReceive(uart_txq,&ch,portMAX_DELAY) != pdPASS )
 			taskYIELD();
 
 		// Received a char to transmit:
