@@ -68,8 +68,8 @@ usart1_isr(void) {
 	char ch;
 	BaseType_t hptask=pdFALSE;
 
-	while ( ((USART_CR1(USART1) & USART_CR1_RXNEIE) != 0)
-	  && ((USART_SR(USART1) & USART_SR_RXNE) != 0) ) {
+
+	while ( ((USART_SR(USART1) & USART_SR_RXNE) != 0) ) {
 		// Have received data:
 		ch = usart_recv(USART1);
 
